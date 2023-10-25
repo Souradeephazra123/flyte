@@ -1,0 +1,34 @@
+name: OnlineOrderProcessingWorkflow
+version: 1.0
+start: StartNode
+nodes:
+  - name: StartNode
+    type: start
+  - name: CheckOrderAmount
+    type: gate
+    conditions:
+      - name: HighValueOrder
+        expression: order.totalAmount > 1000
+      - name: LowValueOrder
+        expression: order.totalAmount <= 1000
+  - name: ProcessHighValueOrder
+    type: task
+    task_reference: ProcessHighValueOrderTask
+  - name: ProcessLowValueOrder
+    type: task
+    task_reference: ProcessLowValueOrderTask
+  - name: EndNode
+    type: end
+connections:
+  - source: StartNode
+    target: CheckOrderAmount
+  - source: CheckOrderAmount
+    target: ProcessHighValueOrder
+    condition: HighValueOrder
+  - source: CheckOrderAmount
+    target: ProcessLowValueOrder
+    condition: LowValueOrder
+  - source: ProcessHighValueOrder
+    target: EndNode
+  - source: ProcessLowValueOrder
+    target: EndNode
